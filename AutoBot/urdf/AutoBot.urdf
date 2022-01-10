@@ -176,8 +176,8 @@
           <horizontal>
             <samples>100</samples>
             <resolution>3.6</resolution>
-            <min_angle>-3.14159265359</min_angle>
-            <max_angle>3.14159265359</max_angle>
+            <min_angle>-1.53589</min_angle>
+            <max_angle>1.53589</max_angle>
           </horizontal>
         </scan>
         <range>
@@ -476,7 +476,7 @@
     <sensor name="depth_camera" type="depth">
       <update_rate>30</update_rate>
       <camera>
-        <horizontal_fov>1.047198</horizontal_fov>
+        <horizontal_fov>2</horizontal_fov>
         <image>
           <width>640</width>
           <height>480</height>
@@ -544,14 +544,14 @@
 
   <gazebo reference="Left_wheel">
     <material>Gazebo/Grey</material>
-    <mu1>0.4</mu1>
-    <mu2>0.4</mu2>
+    <mu1>0.7</mu1>
+    <mu2>0.75</mu2>
   </gazebo>
 
   <gazebo reference="Right_wheel">
     <material>Gazebo/Grey</material>
-    <mu1>0.4</mu1>
-    <mu2>0.4</mu2>
+    <mu1>0.7</mu1>
+    <mu2>0.75</mu2>
   </gazebo>
 
 
@@ -582,16 +582,16 @@
   </joint>
 
 <!-- center cam link orientation-->
-  <joint name="base_link_to_center_camera" type="fixed">
-    <origin xyz="0.58 0 0.5" rpy="0 0 0" />
-    <parent link="base_link"/>
-    <child link="usb_cam_center"/>
-  </joint>
-  <joint name="optical_cam_center_joint" type="fixed">
-    <parent link="usb_cam_center"/>
-    <child link="optical_cam_center"/>
-    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
-  </joint>
+<joint name="base_link_to_center_camera" type="fixed">
+  <origin xyz="0.58 0 1.2" rpy="0 0.3 0" />
+  <parent link="base_link"/>
+  <child link="usb_cam_center"/>
+</joint>
+<joint name="optical_cam_center_joint" type="fixed">
+  <parent link="usb_cam_center"/>
+  <child link="optical_cam_center"/>
+  <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+</joint>
 
 <!-- right cam link orientation-->
   <joint name="base_link_to_right_camera" type="fixed">

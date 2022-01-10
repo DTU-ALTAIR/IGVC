@@ -18,7 +18,6 @@
         <falloff>0</falloff>
       </spot>
     </light>
-    
     <gravity>0 0 -9.8</gravity>
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type='adiabatic'/>
@@ -90,18 +89,30 @@
       <pose>0.155705 0.196505 0 0 -0 0</pose>
     </model>
     <state world_name='default'>
-      <sim_time>97 997000000</sim_time>
-      <real_time>98 296140038</real_time>
-      <wall_time>1637836894 412238615</wall_time>
-      <iterations>97997</iterations>
-      <model name='ground_plane'>
-        <pose>0 0 0 0 -0 0</pose>
+      <sim_time>593 718000000</sim_time>
+      <real_time>69 507214747</real_time>
+      <wall_time>1641668605 578160311</wall_time>
+      <iterations>66183</iterations>
+      <model name='AutoBot'>
+        <pose>0.115611 35.4774 0.505214 -2e-05 -0.05751 -0.004929</pose>
         <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+        <link name='base_link'>
+          <pose>0.115611 35.4774 0.505214 -2e-05 -0.05751 -0.004929</pose>
+          <velocity>0.00045 0.000147 -0.008562 -0.000241 0.000855 -2.1e-05</velocity>
+          <acceleration>-0.008132 -0.0015 -9.80225 0.00309 0.001513 0.001095</acceleration>
+          <wrench>-0.170762 -0.031494 -205.847 0 -0 0</wrench>
+        </link>
+        <link name='base_link_to_Left_wheel'>
+          <pose>0.374134 35.8961 0.308921 -2.1e-05 -0.161513 -0.004927</pose>
+          <velocity>0.000293 0.000117 -0.008897 -0.000181 0.000854 -2.4e-05</velocity>
+          <acceleration>0.017406 0.042982 -9.81286 0.05944 -0.034739 -0.005991</acceleration>
+          <wrench>0.139247 0.343856 -78.5029 0 -0 0</wrench>
+        </link>
+        <link name='base_link_to_Right_wheel'>
+          <pose>0.369993 35.0562 0.308939 -2e-05 -0.160579 -0.004927</pose>
+          <velocity>0.000274 4.9e-05 -0.008682 -0.000375 0.000855 -2.7e-05</velocity>
+          <acceleration>0.003939 -0.039045 -9.78124 -0.091091 -0.021523 -0.00463</acceleration>
+          <wrench>0.031515 -0.312362 -78.2499 0 -0 0</wrench>
         </link>
       </model>
       <model name='my_ground_plane'>
@@ -120,10 +131,567 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>81.9507 -54.2589 48.011 0 0.275643 2.35619</pose>
+        <pose>71.1423 37.9986 49.2004 -0 0.607644 -2.995</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
+    <model name='AutoBot'>
+      <link name='base_link'>
+        <inertial>
+          <pose>-0.048207 0 0.004482 0 -0 0</pose>
+          <mass>21</mass>
+          <inertia>
+            <ixx>39.5982</ixx>
+            <ixy>2.84559e-16</ixy>
+            <ixz>-8.55111</ixz>
+            <iyy>84.7095</iyy>
+            <iyz>5.58434e-15</iyz>
+            <izz>71.7261</izz>
+          </inertia>
+        </inertial>
+        <collision name='base_link_collision'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/shubham/igvc_ws/src/AutoBot/meshes/base_link.STL</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode>
+                <mu>0.2</mu>
+                <mu2>0.2</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='base_link_fixed_joint_lump__caster_collision_1'>
+          <pose>-0.45 0 -0.39 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.09</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode>
+                <mu>0.1</mu>
+                <mu2>0.1</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='base_link_visual'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/shubham/igvc_ws/src/AutoBot/meshes/base_link.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__caster_visual_1'>
+          <pose>-0.45 0 -0.39 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.09</radius>
+            </sphere>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__usb_cam_center_visual_2'>
+          <pose>0.58 0 1.2 0 0.3 0</pose>
+          <geometry>
+            <box>
+              <size>0.1 0.1 0.1</size>
+            </box>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__gps_visual_3'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.05</length>
+              <radius>0.1</radius>
+            </cylinder>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__imu_visual_4'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.1 0.1 0.1</size>
+            </box>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__kinect_cam_visual_5'>
+          <pose>0.55 0 0.8 0 0.2617 0</pose>
+          <geometry>
+            <box>
+              <size>0.1 0.1 0.05</size>
+            </box>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__usb_cam_left_visual_6'>
+          <pose>0.58 0.5 0.5 0 0.75 1.5708</pose>
+          <geometry>
+            <box>
+              <size>0.1 0.1 0.1</size>
+            </box>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__lidar_visual_7'>
+          <pose>0.6 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.1</length>
+              <radius>0.05</radius>
+            </cylinder>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__magnetometer_visual_8'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.1 0.1 0.1</size>
+            </box>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__usb_cam_right_visual_9'>
+          <pose>0.58 -0.5 0.5 0 0.75 -1.5708</pose>
+          <geometry>
+            <box>
+              <size>0.1 0.1 0.1</size>
+            </box>
+          </geometry>
+        </visual>
+        <sensor name='center_camera' type='camera'>
+          <camera>
+            <horizontal_fov>2.239</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>512</height>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>100</far>
+            </clip>
+            <vertical_fov>1.995</vertical_fov>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>30</update_rate>
+          <plugin name='camera_controller' filename='libgazebo_ros_camera.so'>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>30.0</updateRate>
+            <cameraName>usb_cam_center</cameraName>
+            <imageTopicName>image_raw_center</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>optical_cam_center</frameName>
+            <hackBaseline>0.0</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose>0.58 0 1.2 0 0.3 0</pose>
+        </sensor>
+        <sensor name='depth_camera' type='depth'>
+          <update_rate>30</update_rate>
+          <camera>
+            <horizontal_fov>2</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.05</near>
+              <far>5</far>
+            </clip>
+          </camera>
+          <plugin name='kinect_cam_controller' filename='libgazebo_ros_openni_kinect.so'>
+            <baseline>0.2</baseline>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>1.0</updateRate>
+            <cameraName>kinect_cam</cameraName>
+            <imageTopicName>/camera/color/image_raw</imageTopicName>
+            <cameraInfoTopicName>/camera/color/camera_info</cameraInfoTopicName>
+            <depthImageTopicName>/camera/depth/image_raw</depthImageTopicName>
+            <depthImageInfoTopicName>/camera/depth/camera_info</depthImageInfoTopicName>
+            <pointCloudTopicName>/camera/depth/points</pointCloudTopicName>
+            <frameName>optical_depth_cam</frameName>
+            <pointCloudCutoff>0.5</pointCloudCutoff>
+            <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+            <distortionK1>0.00000001</distortionK1>
+            <distortionK2>0.00000001</distortionK2>
+            <distortionK3>0.00000001</distortionK3>
+            <distortionT1>0.00000001</distortionT1>
+            <distortionT2>0.00000001</distortionT2>
+            <CxPrime>0</CxPrime>
+            <Cx>0</Cx>
+            <Cy>0</Cy>
+            <focalLength>0</focalLength>
+            <hackBaseline>0</hackBaseline>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose>0.55 0 0.8 0 0.2617 0</pose>
+        </sensor>
+        <sensor name='left_camera' type='camera'>
+          <camera>
+            <horizontal_fov>2.239</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>512</height>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>100</far>
+            </clip>
+            <vertical_fov>1.995</vertical_fov>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>30</update_rate>
+          <plugin name='camera_controller' filename='libgazebo_ros_camera.so'>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>30.0</updateRate>
+            <cameraName>usb_cam_left</cameraName>
+            <imageTopicName>image_raw_left</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>optical_cam_left</frameName>
+            <hackBaseline>0.0</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose>0.58 0.5 0.5 0 0.75 1.5708</pose>
+        </sensor>
+        <sensor name='lidar' type='ray'>
+          <visualize>0</visualize>
+          <update_rate>10</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>100</samples>
+                <resolution>3.6</resolution>
+                <min_angle>-1.53589</min_angle>
+                <max_angle>1.53589</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>1</samples>
+                <min_angle>0</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.05</min>
+              <max>30</max>
+              <resolution>0.02</resolution>
+            </range>
+          </ray>
+          <plugin name='lidar_plugin' filename='libgazebo_ros_laser.so'>
+            <topicName>/scan</topicName>
+            <frameName>/lidar</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose>0.6 0 0 0 -0 0</pose>
+        </sensor>
+        <sensor name='right_camera' type='camera'>
+          <camera>
+            <horizontal_fov>2.239</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>512</height>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>100</far>
+            </clip>
+            <vertical_fov>1.995</vertical_fov>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>30</update_rate>
+          <plugin name='camera_controller' filename='libgazebo_ros_camera.so'>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>30.0</updateRate>
+            <cameraName>usb_cam_right</cameraName>
+            <imageTopicName>image_raw_right</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>optical_cam_right</frameName>
+            <hackBaseline>0.0</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose>0.58 -0.5 0.5 0 0.75 -1.5708</pose>
+        </sensor>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='Left_wheel' type='revolute'>
+        <pose relative_to='base_link'>0.24475 0.42 -0.2107 0 -0 0</pose>
+        <parent>base_link</parent>
+        <child>base_link_to_Left_wheel</child>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+        </axis>
+        <physics>
+          <ode>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='base_link_to_Left_wheel'>
+        <pose relative_to='Left_wheel'>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose>0 -0.029868 -0 0 -0 0</pose>
+          <mass>8</mass>
+          <inertia>
+            <ixx>0.75096</ixx>
+            <ixy>-1.4332e-17</ixy>
+            <ixz>-1.5881e-17</ixz>
+            <iyy>1.4522</iyy>
+            <iyz>9.1965e-17</iyz>
+            <izz>0.75096</izz>
+          </inertia>
+        </inertial>
+        <collision name='base_link_to_Left_wheel_collision'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/shubham/igvc_ws/src/AutoBot/meshes/base_link_to_Left_wheel.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='base_link_to_Left_wheel_visual'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/shubham/igvc_ws/src/AutoBot/meshes/base_link_to_Left_wheel.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='Right_wheel' type='revolute'>
+        <pose relative_to='base_link'>0.24475 -0.42 -0.2107 0 -0 0</pose>
+        <parent>base_link</parent>
+        <child>base_link_to_Right_wheel</child>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+        </axis>
+        <physics>
+          <ode>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='base_link_to_Right_wheel'>
+        <pose relative_to='Right_wheel'>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose>0 0.029868 -0 0 -0 0</pose>
+          <mass>8</mass>
+          <inertia>
+            <ixx>0.75096</ixx>
+            <ixy>1.9739e-18</ixy>
+            <ixz>-6.8063e-17</ixz>
+            <iyy>1.4522</iyy>
+            <iyz>4.3994e-18</iyz>
+            <izz>0.75096</izz>
+          </inertia>
+        </inertial>
+        <collision name='base_link_to_Right_wheel_collision'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/shubham/igvc_ws/src/AutoBot/meshes/base_link_to_Right_wheel.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='base_link_to_Right_wheel_visual'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/shubham/igvc_ws/src/AutoBot/meshes/base_link_to_Right_wheel.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <plugin name='gazebo_ros_control' filename='libgazebo_ros_control.so'>
+        <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+        <robotNamespace>/</robotNamespace>
+      </plugin>
+      <plugin name='imu' filename='libhector_gazebo_ros_imu.so'>
+        <serviceName>/imu/calibrate</serviceName>
+        <updateRate>200.0</updateRate>
+        <frameId>imu</frameId>
+        <topicName>/imu</topicName>
+        <gaussianNoise>0.00000001</gaussianNoise>
+        <accelDrift>0.00000001 0.00000001 0.00000001</accelDrift>
+        <accelDriftFrequency>0.00000001 0.00000001 0.00000001</accelDriftFrequency>
+        <accelGaussianNoise>0.00000001 0.00000001 0.00000001</accelGaussianNoise>
+        <rateDrift>0.0 0.0 0.0</rateDrift>
+        <rateDriftFrequency>0.0 0.0 0.0</rateDriftFrequency>
+        <rateGaussianNoise>0.0 0.0 0.0</rateGaussianNoise>
+        <headingDrift>0.0 0.0 0.0</headingDrift>
+        <headingDriftFrequency>0.0 0.0 0.0</headingDriftFrequency>
+        <headingGaussianNoise>0.0 0.0 0.0</headingGaussianNoise>
+        <yawOffset>1.5707963</yawOffset>
+        <robotNamespace>/</robotNamespace>
+        <bodyName>base_link</bodyName>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 -0 0</rpyOffset>
+      </plugin>
+      <plugin name='magnetometer' filename='libhector_gazebo_ros_imu.so'>
+        <serviceName>/magnetometer/calibrate</serviceName>
+        <updateRate>200.0</updateRate>
+        <frameId>magnetometer</frameId>
+        <topicName>/magnetometer</topicName>
+        <gaussianNoise>0.00000001</gaussianNoise>
+        <accelDrift>0.00000001 0.00000001 0.00000001</accelDrift>
+        <accelDriftFrequency>0.00000001 0.00000001 0.00000001</accelDriftFrequency>
+        <accelGaussianNoise>0.00000001 0.00000001 0.00000001</accelGaussianNoise>
+        <rateDrift>0.0 0.0 0.0</rateDrift>
+        <rateDriftFrequency>0.0 0.0 0.0</rateDriftFrequency>
+        <rateGaussianNoise>0.0 0.0 0.0</rateGaussianNoise>
+        <headingDrift>0.0 0.0 0.0</headingDrift>
+        <headingDriftFrequency>0.0 0.0 0.0</headingDriftFrequency>
+        <headingGaussianNoise>0.0 0.0 0.0</headingGaussianNoise>
+        <yawOffset>0</yawOffset>
+        <robotNamespace>/</robotNamespace>
+        <bodyName>base_link</bodyName>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 -0 0</rpyOffset>
+      </plugin>
+      <plugin name='gps' filename='libhector_gazebo_ros_gps.so'>
+        <updateRate>20.0</updateRate>
+        <bodyName>base_link</bodyName>
+        <frameId>base_link</frameId>
+        <topicName>/fix</topicName>
+        <velocityTopicName>/fix_velocity</velocityTopicName>
+        <referenceLatitude>33.774497</referenceLatitude>
+        <referenceLongitude>-84.405001</referenceLongitude>
+        <referenceAltitude>309.0</referenceAltitude>
+        <drift>0.001 0.001 0.001</drift>
+        <gaussianNoise>0.0001 0.0001 0.0001</gaussianNoise>
+        <velocityDrift>0 0 0</velocityDrift>
+        <velocityGaussianNoise>0.005 0.005 0.05</velocityGaussianNoise>
+        <robotNamespace>/</robotNamespace>
+      </plugin>
+      <plugin name='differential_drive_controller' filename='libgazebo_ros_diff_drive.so'>
+        <updateRate>50</updateRate>
+        <leftJoint>Left_wheel</leftJoint>
+        <rightJoint>Right_wheel</rightJoint>
+        <wheelSeparation>0.8</wheelSeparation>
+        <wheelDiameter>0.31</wheelDiameter>
+        <wheelAcceleration>1.0</wheelAcceleration>
+        <wheelTorque>20</wheelTorque>
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <robotBaseFrame>base_link</robotBaseFrame>
+        <odometrySource>1</odometrySource>
+        <publishWheelTF>1</publishWheelTF>
+        <publishOdom>1</publishOdom>
+        <publishWheelJointState>1</publishWheelJointState>
+        <legacyMode>0</legacyMode>
+        <robotNamespace>/</robotNamespace>
+      </plugin>
+      <static>0</static>
+      <joint name='base_link_to_caster' type='ball'>
+        <parent>base_link</parent>
+        <pose>0 0 0 0 -0 0</pose>
+        <child>base_link</child>
+      </joint>
+      <pose>0 0 0 0 -0 0</pose>
+    </model>
   </world>
 </sdf>
