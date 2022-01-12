@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import cv2
 from scipy.spatial import distance as dist
@@ -28,7 +29,7 @@ class Gridmap:
         self.map_size_x           = rospy.get_param('~map_size_x', 6.0)
         self.map_size_y           = rospy.get_param('~map_size_y', 7.0)
         self.map_resolution       = rospy.get_param('~map_resolution', 0.04)
-        self.map_publish_freq     = rospy.get_param('~map_publish_freq', 1.0)
+        self.map_publish_freq     = rospy.get_param('~map_publish_freq', 12)
        # self.update_movement      = rospy.get_param('~update_movement', 0.1)
 
         # Creata a OccupancyGrid message template
@@ -44,7 +45,7 @@ class Gridmap:
         self.map_msg.info.origin.orientation.z = self.map_orientation_z
         #self.map_msg.info.origin.orientation.w = self.map_orientation_w
 
-        self.map_pub = rospy.Publisher('lane_map', OccupancyGrid, queue_size=2)
+        self.map_pub = rospy.Publisher('lane_map', OccupancyGrid, queue_size=1)
 
         self.tf_sub = tf.TransformListener()
     

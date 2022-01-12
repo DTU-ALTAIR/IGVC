@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import cv2
 from scipy.spatial import distance as dist

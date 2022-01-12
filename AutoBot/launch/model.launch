@@ -12,5 +12,5 @@
     <include file="$(find AutoBot)/robot_nav/launch/move_base.launch" />
     <include file="$(find AutoBot)/robot_nav/launch/ekf.launch" />
     <!--<include file="$(find AutoBot)/img_to_laser/launch/img_to_laser.launch" />-->
-
+    <node  name="GridMapping" pkg="AutoBot" type="mapping_server_2.py"/>
 </launch>
