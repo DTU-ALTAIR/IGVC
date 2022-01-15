@@ -1,0 +1,19 @@
+global_costmap:
+  global_frame: odom
+  robot_base_frame: base_link
+  #plugins:
+      #- {name: line_layer, type: "costmap_2d::StaticLayer"}
+        #- {name: line_layer,     type: "line_layer::LineLayer"}
+  width: 200
+  height: 200
+  origin_x: -100
+  origin_y: -100
+  update_frequency: 10
+  publish_frequency: 10
+  static_map: false
+  rolling_window: true
+
+  #line_layer:
+  #  map_topic: "/lane_map"
+
+  

@@ -6,8 +6,20 @@
     <param name="use_gui" value="$(arg gui)"/>
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" required="true" />
-    <node name="rviz" pkg="rviz" type="rviz" args="-d /home/fury/catkin_ws/src/AutoBot/rviz/rviz_conf1.rviz" />
-    <node pkg="AutoBot" name="image_converter" type="image_blob_test.py" output="screen" />
+    <node name="rviz" pkg="rviz" type="rviz" />
+  <!--  <node pkg="AutoBot" name="image_converter" type="image_blob_test.py" output="screen" /> -->
+    <!--<node  name="GridMapping" pkg="AutoBot" type="mapping_server_2.py">
+      <remap from="/lane_map" to="/lane_project"/>
+    </node>-->
     <include file="$(find AutoBot)/launch/gazebo.launch" />
+    <include file="$(find AutoBot)/robot_nav/launch/move_base.launch" />
+    <include file="$(find AutoBot)/robot_nav/launch/ekf.launch" />
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" />
+    <node pkg="nodelet" type="nodelet" name="nodelet1"
+          args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+      <remap from="camera_info" to="/kinect_cam/depth/camera_info"/>
+      <remap from="image_rect" to="/kinect_cam/depth/image_raw"/>
+      <remap from="points" to="/kinect_cam/depth/points"/>
+    </node>
 
 </launch>

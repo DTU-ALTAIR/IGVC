@@ -1,0 +1,10 @@
+<launch>
+    <!-- My Package launch file -->
+    <param name="virtual_lidar_x" value="400"/>
+	<param name="virtual_lidar_y" value="400"/>
+
+    <node pkg="AutoBot" type="lane_scanner.py" name="lane_scan"  output="screen">
+    <remap from="final_image" to="final_image"/>
+    <remap from="lane_scan_test"  to="lane_scan_test"/>
+    </node>
+</launch>
