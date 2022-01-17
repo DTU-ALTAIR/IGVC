@@ -4,7 +4,6 @@ import sys
 import cv2
 from scipy.spatial import distance as dist
 import numpy as np
-from invers_persp import four_point_transform
 from rosgraph import rosenv
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
@@ -21,79 +20,85 @@ from math import pi
 
 bridge = CvBridge()
 
-class Gridmap:
-    def __init__(self):
-        #rospy.init_node('RosGridMapping', anonymous=True)
-        self.robot_frame          = rospy.get_param('~robot_frame', 'base_link')
-        self.map_frame            = rospy.get_param('~map_frame', 'gps')
-        self.map_center_x         = rospy.get_param('~map_center_x', 7.6)
-        self.map_center_y         = rospy.get_param('~map_center_y', 3.50)
-        self.map_orientation_x         = rospy.get_param('~map_orientation_x', -0.7071)
-        self.map_orientation_y         = rospy.get_param('~map_orientation_y', 0.7071)
-        self.map_orientation_z         = rospy.get_param('~map_orientation_z', 0)
-        self.map_orientation_w         = rospy.get_param('~map_orientation_w', 0)
-        # img size 640,700
-        self.map_size_x           = rospy.get_param('~map_size_x', 6.0)
-        self.map_size_y           = rospy.get_param('~map_size_y', 7.0)
-        self.map_resolution       = rospy.get_param('~map_resolution', 0.04)
-        self.map_publish_freq     = rospy.get_param('~map_publish_freq', 12)
-       # self.update_movement      = rospy.get_param('~update_movement', 0.1)
+def order_points(pts):
+    # sort the points based on their x-coordinates
+    xSorted = pts[np.argsort(pts[:, 0]), :]
 
-        # Creata a OccupancyGrid message template
-        self.map_msg = OccupancyGrid()
-        self.map_msg.header.frame_id = self.map_frame
-        self.map_msg.info.resolution = self.map_resolution
-        self.map_msg.info.width = int(self.map_size_x / self.map_resolution)
-        self.map_msg.info.height = int(self.map_size_y / self.map_resolution)
-        self.map_msg.info.origin.position.x = self.map_center_x
-        self.map_msg.info.origin.position.y = self.map_center_y
-        self.map_msg.info.origin.orientation.x = self.map_orientation_x
-        self.map_msg.info.origin.orientation.y = self.map_orientation_y
-        self.map_msg.info.origin.orientation.z = self.map_orientation_z
-        #self.map_msg.info.origin.orientation.w = self.map_orientation_w
+    # grab the left-most and right-most points from the sorted
+    # x-roodinate points
+    leftMost = xSorted[:2, :]
+    rightMost = xSorted[2:, :]
 
-        self.map_pub = rospy.Publisher('lane_map', OccupancyGrid, queue_size=1)
+    # now, sort the left-most coordinates according to their
+    # y-coordinates so we can grab the top-left and bottom-left
+    # points, respectively
+    leftMost = leftMost[np.argsort(leftMost[:, 1]), :]
+    (tl, bl) = leftMost
 
-        self.tf_sub = tf.TransformListener()
-    
-    def publish_occupancygrid(self, image):
-        # Convert gridmap to ROS supported data type : int8[]
-        # http://docs.ros.org/en/melodic/api/nav_msgs/html/msg/OccupancyGrid.html
-        # The map data, in row-major order, starting with (0,0).  Occupancy probabilities are in the range [0,100].  Unknown is -1.
-        
-        # convert incoming image to map
+    # now that we have the top-left coordinate, use it as an
+    # anchor to calculate the Euclidean distance between the
+    # top-left and right-most points; by the Pythagorean
+    # theorem, the point with the largest distance will be
+    # our bottom-right point
+    D = dist.cdist(tl[np.newaxis], rightMost, "euclidean")[0]
+    (br, tr) = rightMost[np.argsort(D)[::-1], :]
 
-        gridmap_p = self.img2grid(image)
-        #unknown_mask = (gridmap_p == self.sensor_model_p_prior)  # for setting unknown cells to -1
-        gridmap_int8 = (gridmap_p*100).astype(dtype=np.int8)
-        #gridmap_int8[unknown_mask] = -1  # for setting unknown cells to -1
+    # return the coordinates in top-left, top-right,
+    # bottom-right, and bottom-left order
+    return np.array([tl, tr, br, bl], dtype="float32")
 
-        # Publish map
-        self.map_msg.data = gridmap_int8
-        current_time = rospy.Time.now()
-        #self.map_msg.header.stamp = stamp
-        self.map_msg.header.stamp = current_time
-        #self.tf_sub.waitForTransform(self.map_frame, self.robot_frame, self.map_msg.header.stamp, rospy.Duration(1.0))
 
-        self.map_pub.publish(self.map_msg)
-        rospy.loginfo_once("Published map!")
+def fpt(image, pts):
+    # obtain a consistent order of the points and unpack them
+    # individually
+    rect = order_points(pts)
+    (tl, tr, br, bl) = rect
 
-    def img2grid(self, image):
-        img = (image/255)
-        grid = img[:,:,0].flatten()
-        return grid
+    # compute the width of the new image, which will be the
+    # maximum distance between bottom-right and bottom-left
+    # x-coordiates or the top-right and top-left x-coordinates
+    widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+    widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+    maxWidth = max(int(widthA), int(widthB))
+
+    # compute the height of the new image, which will be the
+    # maximum distance between the top-right and bottom-right
+    # y-coordinates or the top-left and bottom-left y-coordinates
+    heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+    heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+    maxHeight = max(int(heightA), int(heightB))
+
+    # now that we have the dimensions of the new image, construct
+    # the set of destination points to obtain a "birds eye view",
+    # (i.e. top-down view) of the image, again specifying points
+    # in the top-left, top-right, bottom-right, and bottom-left
+    # order
+    dst = np.array([
+        [0, 0],
+        [maxWidth - 1, 0],
+        [maxWidth - 1, maxHeight - 1],
+        [0, maxHeight - 1]], dtype="float32")
+
+    # compute the perspective transform matrix and then apply it
+    M = cv2.getPerspectiveTransform(rect, dst)
+    warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+    cv2.imshow("Warped Image window", warped)
+    # return the warped image
+    return warped
 
 def publishPC2(img):
     img= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     M= img.shape[0]
+    #print(M)
     N= img.shape[1]
+    #print(N)
     fields = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('y', 4, PointField.FLOAT32, 1),
              PointField('z', 8, PointField.FLOAT32, 1),
              PointField('intensity', 12, PointField.FLOAT32, 1)]
     header = Header()
     header.frame_id = "base_link"
-    pub = rospy.Publisher('points2', PointCloud2, queue_size=100)
+    pub = rospy.Publisher('/camera/depth/fakepoints', PointCloud2, queue_size=100)
     #point_test=point_cloud2()
     #print(img.shape)
     #print("HSDbvjfbsdkjfsdnfjkhs sdjf sdj")
@@ -103,14 +108,13 @@ def publishPC2(img):
             if (img[x][y]>200):
                 header.stamp = rospy.Time.now()
                 
-                points = np.array([x,y,2,255]).T
+                points = np.array([(189-x)/26,(85-y)/27,0,255]).T
                 #pointtest.append(points)
                 #np.append(points_test,points)
-                points_test.append(points)
-                           
-                
+                points_test.append(points)    
     pc2 = point_cloud2.create_cloud(header, fields, points_test)
     pub.publish(pc2)
+    
 def read_rgb_image(image_name):
     rgb_image = image_name
     #rgb_image = cv2.imread(image_name)
@@ -180,26 +184,26 @@ def image_callback(ros_image):
     #image wrap
     pts = np.array([(238, 262), (0, 395), (640-238, 262), (640, 395)])
 
-    warped = four_point_transform(image, pts)
+    warped1 = fpt(image, pts)
 
     for (x, y) in pts:
        cv2.circle(image, (x, y), 5, (0, 255, 0), -1)
 
-    warped = cv2.resize(warped, (150, 175))
-    filt_warped,_ = detect_lane_in_a_frame(warped)
+    warped1 = cv2.resize(warped1, (150, 175))
+    filt_warped,_ = detect_lane_in_a_frame(warped1)
 
-    grid_obj = Gridmap()
+    #grid_obj = Gridmap()
     publishPC2(filt_warped)
     
-    map_publisher = grid_obj.publish_occupancygrid(filt_warped)
+    #map_publisher = grid_obj.publish_occupancygrid(filt_warped)
 
 
     #image publisher
 
-    cv2.imshow("Warped Image window", warped)
-    cv2.imshow("Masked Warped Image window", filt_warped)
-    cv2.imshow("Image window", image)
-    cv2.waitKey(3)
+    #cv2.imshow("Warped Image window", warped)
+    #cv2.imshow("Masked Warped Image window", filt_warped)
+    #cv2.imshow("Image window", image)
+    #cv2.waitKey(3)
 
 def main(args):
   #print("test1")
