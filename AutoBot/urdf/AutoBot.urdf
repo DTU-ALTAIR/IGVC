@@ -161,7 +161,7 @@
 
   <gazebo reference="lidar">
     <sensor type="ray" name="lidar">
-      <visualize>true</visualize>
+      <visualize>false</visualize>
       <update_rate>10</update_rate>
       <ray>
         <!-- Use gaussian noise -->
@@ -584,7 +584,7 @@
 
 <!-- center cam link orientation-->
   <joint name="base_link_to_center_camera" type="fixed">
-    <origin xyz="0.58 0 0.5" rpy="0 0 0" />
+    <origin xyz="1.5 0 1.5" rpy="0 1.6 0" />
     <parent link="base_link"/>
     <child link="usb_cam_center"/>
   </joint>
