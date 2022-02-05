@@ -161,7 +161,7 @@
 
   <gazebo reference="lidar">
     <sensor type="ray" name="lidar">
-      <visualize>false</visualize>
+      <visualize>true</visualize>
       <update_rate>10</update_rate>
       <ray>
         <!-- Use gaussian noise -->
@@ -176,14 +176,14 @@
           <horizontal>
             <samples>100</samples>
             <resolution>3.6</resolution>
-            <min_angle>-3.14159265359</min_angle>
-            <max_angle>3.14159265359</max_angle>
+            <min_angle>0</min_angle>
+            <max_angle>0.787945</max_angle>
           </horizontal>
         </scan>
         <range>
           <min>0.05</min>
-          <max>30</max>
-          <resolution>0.02</resolution>
+          <max>4</max>
+          <resolution>0.01</resolution>
         </range>
       </ray>
       <plugin name="lidar_plugin" filename="libgazebo_ros_laser.so">
@@ -497,6 +497,7 @@
         <depthImageTopicName>/camera/depth/image_raw</depthImageTopicName>
         <depthImageInfoTopicName>/camera/depth/camera_info</depthImageInfoTopicName>
         <pointCloudTopicName>/camera/depth/points</pointCloudTopicName>
+        <pointCloudTopicName>/camera/depth/fakepoints</pointCloudTopicName>
         <frameName>optical_depth_cam</frameName>
         <pointCloudCutoff>0.5</pointCloudCutoff>
         <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
@@ -544,14 +545,14 @@
 
   <gazebo reference="Left_wheel">
     <material>Gazebo/Grey</material>
-    <mu1>0.4</mu1>
-    <mu2>0.4</mu2>
+    <mu1>0.7</mu1>
+    <mu2>0.75</mu2>
   </gazebo>
 
   <gazebo reference="Right_wheel">
     <material>Gazebo/Grey</material>
-    <mu1>0.4</mu1>
-    <mu2>0.4</mu2>
+    <mu1>0.7</mu1>
+    <mu2>0.75</mu2>
   </gazebo>
 
 
@@ -620,7 +621,7 @@
 
   <!-- depth cam link orientation-->
   <joint name="base_link_to_kinect_cam" type="fixed">
-    <origin xyz="0.55 0 0.8" rpy="0 0.2617 0" />
+    <origin xyz="0.55 0 0.8" rpy="0 0.5 0" />
     <parent link="base_link"/>
     <child link="kinect_cam"/>
   </joint>
