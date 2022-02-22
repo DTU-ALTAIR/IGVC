@@ -17,8 +17,29 @@ from sensor_msgs.msg import PointField
 from std_msgs.msg import Header
 import tf
 from math import pi
+import time
+import roslib
+#import my_yolo as yolo
 
 bridge = CvBridge()
+
+INPUT_FILE='data/dog.jpg'
+OUTPUT_FILE='predicted.jpg'
+LABELS_FILE='data/coco.names'
+CONFIG_FILE='cfg/yolov3.cfg'
+WEIGHTS_FILE='yolov3.weights'
+CONFIDENCE_THRESHOLD=0.3
+
+LABELS = open(LABELS_FILE).read().strip().split("\n")
+
+np.random.seed(4)
+COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
+	dtype="uint8")
+
+
+net = cv2.dnn.readNetFromDarknet(CONFIG_FILE, WEIGHTS_FILE)
+
+
 
 def order_points(pts):
     # sort the points based on their x-coordinates
@@ -46,7 +67,6 @@ def order_points(pts):
     # return the coordinates in top-left, top-right,
     # bottom-right, and bottom-left order
     return np.array([tl, tr, br, bl], dtype="float32")
-
 
 def fpt(image, pts):
     # obtain a consistent order of the points and unpack them
@@ -98,17 +118,16 @@ def publishPC2(img):
              PointField('intensity', 12, PointField.FLOAT32, 1)]
     header = Header()
     header.frame_id = "base_link"
-    pub = rospy.Publisher('/camera/depth/fakepoints', PointCloud2, queue_size=100)
+    pub = rospy.Publisher('/camera/depth/fakepoints', PointCloud2, queue_size=1)
     #point_test=point_cloud2()
     #print(img.shape)
     #print("HSDbvjfbsdkjfsdnfjkhs sdjf sdj")
     points_test=[]
-    for x in range(1,M-1):
-        for y in range(1,N-1):
+    for y in range(1,N-1):
+        for x in range(1,M-1):
             if (img[x][y]>200):
                 header.stamp = rospy.Time.now()
-                
-                points = np.array([(189-x)/26,(85-y)/27,0,255]).T
+                points = np.array([(190-x)/37,(76.5-y)/17.5,0,255]).T
                 #pointtest.append(points)
                 #np.append(points_test,points)
                 points_test.append(points)    
@@ -166,6 +185,15 @@ def create_occupancy_grid(image):
     #grid_msg.info.
     return grid_msg
 '''
+def warp_perspective(lane,image):
+        height = image.shape[0]
+        width = image.shape[1]
+        pts1 = np.float32([lane[3],lane[0],lane[2],lane[1]])
+        pts2 = np.float32([[0,0],[width,0],[0,height],[width,height]])
+
+        M = cv2.getPerspectiveTransform(pts1,pts2)
+        dst = cv2.warpPerspective(image,M,(width,height))
+        return dst,M
 
 def image_callback(ros_image):
 
@@ -180,30 +208,120 @@ def image_callback(ros_image):
     except CvBridgeError as e:
         print(e)
     
-    image = read_rgb_image(cv_image)
+    image1 = read_rgb_image(cv_image)
     #image wrap
-    pts = np.array([(238, 262), (0, 395), (640-238, 262), (640, 395)])
+    #pts = np.array([(238, 262), (0, 395), (640-238, 262), (640, 395)])
+    lane = [(640,0),(640,334),(0,334),(0, 0)]
+            # for i in lane:
+            #     image = cv2.circle(image,i,4,(0,255,0),-1)
+    #warped1,M = warp_perspective(lane,image)
+    #warped1 = fpt(image, pts)
+    warped1 = image1[0:334,0:640]
+    
+    image = warped1
+    (H, W) = image.shape[:2]
 
-    warped1 = fpt(image, pts)
+    # determine only the *output* layer names that we need from YOLO
+    ln = net.getLayerNames()
+    ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
-    for (x, y) in pts:
-       cv2.circle(image, (x, y), 5, (0, 255, 0), -1)
+
+    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),
+        swapRB=True, crop=False)
+    net.setInput(blob)
+    start = time.time()
+    layerOutputs = net.forward(ln)
+    end = time.time()
+
+
+    print("[INFO] YOLO took {:.6f} seconds".format(end - start))
+
+
+    # initialize our lists of detected bounding boxes, confidences, and
+    # class IDs, respectively
+    boxes = []
+    confidences = []
+    classIDs = []
+
+    # loop over each of the layer outputs
+    for output in layerOutputs:
+        # loop over each of the detections
+        for detection in output:
+            # extract the class ID and confidence (i.e., probability) of
+            # the current object detection
+            scores = detection[5:]
+            classID = np.argmax(scores)
+            confidence = scores[classID]
+
+            # filter out weak predictions by ensuring the detected
+            # probability is greater than the minimum probability
+            if confidence > CONFIDENCE_THRESHOLD:
+                # scale the bounding box coordinates back relative to the
+                # size of the image, keeping in mind that YOLO actually
+                # returns the center (x, y)-coordinates of the bounding
+                # box followed by the boxes' width and height
+                box = detection[0:4] * np.array([W, H, W, H])
+                (centerX, centerY, width, height) = box.astype("int")
+
+                # use the center (x, y)-coordinates to derive the top and
+                # and left corner of the bounding box
+                x = int(centerX - (width / 2))
+                y = int(centerY - (height / 2))
+
+                # update our list of bounding box coordinates, confidences,
+                # and class IDs
+                boxes.append([x, y, int(width), int(height)])
+                confidences.append(float(confidence))
+                classIDs.append(classID)
+
+    # apply non-maxima suppression to suppress weak, overlapping bounding
+    # boxes
+    idxs = cv2.dnn.NMSBoxes(boxes, confidences, CONFIDENCE_THRESHOLD,
+        CONFIDENCE_THRESHOLD)
+
+    # ensure at least one detection exists
+    if len(idxs) > 0:
+        # loop over the indexes we are keeping
+        for i in idxs.flatten():
+            # extract the bounding box coordinates
+            (x, y) = (boxes[i][0], boxes[i][1])
+            (w, h) = (boxes[i][2], boxes[i][3])
+
+            color = [int(c) for c in COLORS[classIDs[i]]]
+
+            cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
+            text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
+            cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                0.5, color, 2)
+
+    # show the output image
+    warped1=image
+    
+    cv2.imshow("Image window", image)
+    
+    
+    
+    
+    #for (x, y) in lane:
+    #    cv2.circle(image, (x, y), 5, (0, 255, 0), -1)
 
     warped1 = cv2.resize(warped1, (150, 175))
     filt_warped,_ = detect_lane_in_a_frame(warped1)
-
+    
     #grid_obj = Gridmap()
     publishPC2(filt_warped)
+    
     
     #map_publisher = grid_obj.publish_occupancygrid(filt_warped)
 
 
     #image publisher
 
-    #cv2.imshow("Warped Image window", warped)
-    #cv2.imshow("Masked Warped Image window", filt_warped)
-    #cv2.imshow("Image window", image)
-    #cv2.waitKey(3)
+    cv2.imshow("Warped Image window", warped1)
+    cv2.imshow("Masked Warped Image window", filt_warped)
+    cv2.imshow("Image window", image1)
+    cv2.waitKey(1)
+    
 
 def main(args):
   #print("test1")
@@ -213,9 +331,7 @@ def main(args):
   #for usb cam
   image_topic="/usb_cam_center/image_raw_center"
   #print("test2")
-  image_sub1 = rospy.Subscriber(image_topic, Image, image_callback)
-  
-  
+  rospy.Subscriber(image_topic, Image, image_callback)
   try:
     rospy.Rate(10)
     rospy.spin()

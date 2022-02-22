@@ -176,14 +176,14 @@
           <horizontal>
             <samples>100</samples>
             <resolution>3.6</resolution>
-            <min_angle>-1.53589</min_angle>
-            <max_angle>1.53589</max_angle>
+            <min_angle>-0.787945</min_angle>
+            <max_angle>0.787945</max_angle>
           </horizontal>
         </scan>
         <range>
           <min>0.05</min>
-          <max>30</max>
-          <resolution>0.02</resolution>
+          <max>4</max>
+          <resolution>0.01</resolution>
         </range>
       </ray>
       <plugin name="lidar_plugin" filename="libgazebo_ros_laser.so">
@@ -230,8 +230,8 @@
           <horizontal_fov>2.239</horizontal_fov>
           <vertical_fov>1.995</vertical_fov>
           <image>
-            <width>1080</width>
-            <height>720</height>
+            <width>640</width>
+            <height>512</height>
           </image>
           <clip>
             <near>0.1</near>
@@ -621,7 +621,7 @@
 
   <!-- depth cam link orientation-->
   <joint name="base_link_to_kinect_cam" type="fixed">
-    <origin xyz="0.55 0 0.8" rpy="0 0.2617 0" />
+    <origin xyz="0.55 0 0.8" rpy="0 0.5 0" />
     <parent link="base_link"/>
     <child link="kinect_cam"/>
   </joint>

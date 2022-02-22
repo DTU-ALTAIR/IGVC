@@ -165,7 +165,6 @@ def main(args):
 
   
   try:
-    rospy.Rate(10)
     rospy.spin()
   except KeyboardInterrupt:
     print("Shutting down")
